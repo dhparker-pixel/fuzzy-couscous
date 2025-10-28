@@ -1,7 +1,7 @@
     // ===== CONFIGURATION =====
     const CONFIG = {
         // Data source URL
-        dataSourceUrl: 'https://hci.icat.vt.edu/content/dam/hci_icat_vt_edu/carousel.js',
+        dataSourceUrl: 'carousel.js',
 
         // Timing settings (in milliseconds)
         autoAdvanceDelay: 5000,  // Time between auto-advance (5 seconds)
