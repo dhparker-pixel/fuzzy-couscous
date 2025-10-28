@@ -1,0 +1,569 @@
+<style>
+    :root {
+        /* Colors */
+        --color-background: #000;
+        --color-text-primary: #ffffff;
+        --color-text-secondary: #f0f0f0;
+        --color-text-tertiary: #ddd;
+        --color-link-bg: #861F41;
+        --color-overlay: rgba(0, 0, 0, 0.5);
+        --color-dot-inactive: rgba(255, 255, 255, 0.4);
+        --color-dot-active: #ffffff;
+        --color-control-bg: rgba(134, 31, 65, 0.9);
+        --color-control-hover: rgba(134, 31, 65, 1);
+
+        /* Spacing */
+        --spacing-carousel-vertical: 60px;
+        --spacing-carousel-horizontal: 60px;
+        --spacing-content-padding: 30px 20px;
+        --spacing-dots-gap: 10px;
+        --spacing-dots-padding: 20px;
+        --spacing-title-bottom: 12px;
+        --spacing-description-bottom: 20px;
+        --spacing-image-bottom: 25px;
+
+        /* Dimensions */
+        --image-max-width: 800px;
+        --image-height: 450px;
+        --image-border-radius: 8px;
+        --dot-size: 12px;
+        --dot-active-width: 32px;
+        --dot-active-radius: 6px;
+        --control-size: 48px;
+
+        /* Effects */
+        --blur-amount: 20px;
+        --bg-scale: 1.1;
+        --transition-speed: 0.5s;
+        --transition-easing: ease-in-out;
+        --shadow-image: 0 2px 10px rgba(0, 0, 0, 0.15);
+        --shadow-text: 0 2px 4px rgba(0, 0, 0, 0.3);
+        --shadow-text-small: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --shadow-control: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+        /* Typography */
+        --line-height-title: 1.3;
+        --line-height-description: 1.6;
+        --font-size-date: 20px;
+
+        /* Link Styling */
+        --link-padding: 10px;
+        --link-border-radius: 8px;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--color-background);
+        margin: 0;
+        padding: 0;
+    }
+
+    .carousel-container {
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        min-height: 600px;
+    }
+
+    .carousel-container.loading .carousel-wrapper,
+    .carousel-container.loading .carousel-dots,
+    .carousel-container.loading .carousel-controls {
+        opacity: 0;
+    }
+
+    .carousel-container.loaded .carousel-wrapper,
+    .carousel-container.loaded .carousel-dots,
+    .carousel-container.loaded .carousel-controls {
+        opacity: 1;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .carousel-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        filter: blur(var(--blur-amount));
+        transform: scale(var(--bg-scale));
+        transition: opacity var(--transition-speed) var(--transition-easing);
+        z-index: 0;
+    }
+
+    .carousel-background::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--color-overlay);
+    }
+
+    .carousel-wrapper {
+        position: relative;
+        overflow: hidden;
+        padding: var(--spacing-carousel-vertical) 0;
+        z-index: 1;
+    }
+
+    .carousel-track {
+        display: flex;
+        transition: transform var(--transition-speed) var(--transition-easing);
+    }
+
+    .carousel-slide {
+        min-width: 100%;
+        padding: 0 var(--spacing-carousel-horizontal);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .slide-image {
+        width: 100%;
+        max-width: var(--image-max-width);
+        height: var(--image-height);
+        object-fit: cover;
+        border-radius: var(--image-border-radius);
+        box-shadow: var(--shadow-image);
+        margin-bottom: var(--spacing-image-bottom);
+    }
+
+    .slide-content {
+        width: 100%;
+        padding: var(--spacing-content-padding);
+        text-align: center;
+    }
+
+    .slide-title {
+        color: var(--color-text-primary);
+        width: 80%;
+        margin-bottom: var(--spacing-title-bottom);
+        line-height: var(--line-height-title);
+        text-shadow: var(--shadow-text);
+    }
+
+    .slide-description {
+        color: var(--color-text-secondary);
+        line-height: var(--line-height-description);
+        margin-bottom: var(--spacing-description-bottom);
+        text-shadow: var(--shadow-text-small);
+    }
+
+    .slide-date {
+        font-size: var(--font-size-date);
+        color: var(--color-text-tertiary);
+        font-weight: 500;
+        text-shadow: var(--shadow-text-small);
+    }
+
+    .slide-date a {
+        color: var(--color-text-primary);
+        padding: var(--link-padding);
+        background: var(--color-link-bg);
+        border-radius: var(--link-border-radius);
+    }
+
+    .carousel-controls {
+        position: absolute;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .control-btn {
+        width: var(--control-size);
+        height: var(--control-size);
+        border-radius: 50%;
+        background: var(--color-control-bg);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: var(--color-text-primary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow-control);
+        backdrop-filter: blur(10px);
+    }
+
+    .control-btn:hover {
+        background: var(--color-control-hover);
+        border-color: rgba(255, 255, 255, 0.6);
+        transform: scale(1.05);
+    }
+
+    .control-btn:focus {
+        outline: 2px solid var(--color-text-primary);
+        outline-offset: 2px;
+    }
+
+    .control-btn svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+    }
+
+    .carousel-dots {
+        display: flex;
+        justify-content: center;
+        gap: var(--spacing-dots-gap);
+        padding: var(--spacing-dots-padding);
+        background: transparent;
+        position: relative;
+        z-index: 1;
+    }
+
+    .dot {
+        width: var(--dot-size);
+        height: var(--dot-size);
+        border-radius: 50%;
+        background: var(--color-dot-inactive);
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .dot.active {
+        background: var(--color-dot-active);
+        width: var(--dot-active-width);
+        border-radius: var(--dot-active-radius);
+    }
+
+    @media (max-width: 768px) {
+        .carousel-slide {
+            padding: 0 30px;
+        }
+
+        .slide-image {
+            height: 300px;
+        }
+
+        .slide-title {
+            font-size: 22px;
+        }
+
+        .slide-description {
+            font-size: 14px;
+        }
+
+        .carousel-controls {
+            right: 10px;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+        }
+
+        .control-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .carousel-slide {
+            padding: 0 15px;
+        }
+
+        .slide-image {
+            height: 200px;
+        }
+
+        .slide-content {
+            padding: 20px 10px;
+        }
+
+        .carousel-controls {
+            right: 5px;
+        }
+
+        .control-btn {
+            width: 36px;
+            height: 36px;
+        }
+    }
+</style>
+<div class="carousel-container loading" id="carouselContainer">
+    <div class="carousel-background" id="carouselBg"></div>
+    <div class="carousel-wrapper">
+        <div class="carousel-track" id="carouselTrack">
+            <!-- Slides will be generated dynamically from carousel.js -->
+        </div>
+    </div>
+    <div class="carousel-controls">
+        <button id="playPauseBtn" class="control-btn" aria-label="Pause carousel">
+            <svg id="pauseIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+            </svg>
+            <svg id="playIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="display: none;">
+                <path d="M8 5v14l11-7z" />
+            </svg>
+        </button>
+    </div>
+    <div class="carousel-dots" id="carouselDots"></div>
+</div>
+
+<script>
+    // ===== CONFIGURATION =====
+    const CONFIG = {
+        // Data source URL
+        dataSourceUrl: 'https://hci.icat.vt.edu/content/dam/hci_icat_vt_edu/carousel.js',
+
+        // Timing settings (in milliseconds)
+        autoAdvanceDelay: 5000,  // Time between auto-advance (5 seconds)
+
+        // Touch/Swipe settings
+        swipeThreshold: 50,  // Minimum pixels to trigger swipe
+
+        // Accessibility
+        dotAriaLabel: 'Go to slide'  // Screen reader label for dots
+    };
+    // ===== END CONFIGURATION =====
+
+    // DOM Elements
+    const carouselContainer = document.getElementById('carouselContainer');
+    const track = document.getElementById('carouselTrack');
+    const dotsContainer = document.getElementById('carouselDots');
+    const background = document.getElementById('carouselBg');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const pauseIcon = document.getElementById('pauseIcon');
+    const playIcon = document.getElementById('playIcon');
+
+    // State
+    let currentIndex = 0;
+    let totalSlides = 0;
+    let slides = [];
+    let dots = [];
+    let autoAdvanceInterval = null;
+    let isPlaying = true;
+
+    // Build carousel from data
+    function buildCarousel() {
+        // Clear existing content
+        track.innerHTML = '';
+        dotsContainer.innerHTML = '';
+
+        // Preload first image before building carousel
+        const firstImage = new Image();
+        firstImage.onload = function () {
+            // First image loaded, now build the carousel
+            createSlides();
+            // Update background with loaded image
+            updateBackground();
+            // Remove loading state
+            carouselContainer.classList.remove('loading');
+            carouselContainer.classList.add('loaded');
+        };
+        firstImage.onerror = function () {
+            // Even if image fails, show the carousel
+            createSlides();
+            updateBackground();
+            carouselContainer.classList.remove('loading');
+            carouselContainer.classList.add('loaded');
+        };
+        firstImage.src = CAROUSEL_DATA.slides[0].image;
+    }
+
+    // Create slides and dots
+    function createSlides() {
+        // Create slides from CAROUSEL_DATA
+        CAROUSEL_DATA.slides.forEach((slideData, index) => {
+            // Create slide
+            const slide = document.createElement('div');
+            slide.className = 'carousel-slide';
+
+            // Use alt text from data, fallback to title if not provided
+            const altText = slideData.alt || slideData.title;
+
+            slide.innerHTML = `
+                    <div class="slide-content">
+                        <h1 style="text-align: center; color:#fff;">${slideData.title}</h1>
+                        <h3 class="slide-description">${slideData.description || ''}</h3>
+                        <div class="slide-date">${slideData.date} <a href="${slideData.url}">Read more</a></div>
+                    </div>
+                    <a href="${slideData.url}">
+                        <img src="${slideData.image}" alt="${altText}" class="slide-image">
+                    </a>
+                `;
+
+            track.appendChild(slide);
+
+            // Create dot
+            const dot = document.createElement('button');
+            dot.classList.add('dot');
+            dot.setAttribute('aria-label', `${CONFIG.dotAriaLabel} ${index + 1}`);
+            if (index === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => goToSlide(index));
+            dotsContainer.appendChild(dot);
+        });
+
+        // Update references
+        slides = document.querySelectorAll('.carousel-slide');
+        dots = document.querySelectorAll('.dot');
+        totalSlides = slides.length;
+    }
+
+    // Update background image
+    function updateBackground() {
+        if (CAROUSEL_DATA.slides[currentIndex]) {
+            background.style.backgroundImage = `url(${CAROUSEL_DATA.slides[currentIndex].image})`;
+        }
+    }
+
+    // Update carousel position and dots
+    function updateCarousel() {
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        updateBackground();
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentIndex);
+        });
+    }
+
+    // Navigate to specific slide
+    function goToSlide(index) {
+        currentIndex = index;
+        updateCarousel();
+    }
+
+    // Navigate to next slide
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % totalSlides;
+        updateCarousel();
+    }
+
+    // Navigate to previous slide
+    function prevSlide() {
+        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+        updateCarousel();
+    }
+
+    // Start auto-advance
+    function startAutoAdvance() {
+        if (autoAdvanceInterval) return;
+        autoAdvanceInterval = setInterval(nextSlide, CONFIG.autoAdvanceDelay);
+        isPlaying = true;
+        updatePlayPauseButton();
+    }
+
+    // Stop auto-advance
+    function stopAutoAdvance() {
+        if (autoAdvanceInterval) {
+            clearInterval(autoAdvanceInterval);
+            autoAdvanceInterval = null;
+        }
+        isPlaying = false;
+        updatePlayPauseButton();
+    }
+
+    // Toggle play/pause
+    function togglePlayPause() {
+        if (isPlaying) {
+            stopAutoAdvance();
+        } else {
+            startAutoAdvance();
+        }
+    }
+
+    // Update play/pause button appearance
+    function updatePlayPauseButton() {
+        if (isPlaying) {
+            pauseIcon.style.display = 'block';
+            playIcon.style.display = 'none';
+            playPauseBtn.setAttribute('aria-label', 'Pause carousel');
+        } else {
+            pauseIcon.style.display = 'none';
+            playIcon.style.display = 'block';
+            playPauseBtn.setAttribute('aria-label', 'Play carousel');
+        }
+    }
+
+    // Play/Pause button event listener
+    playPauseBtn.addEventListener('click', togglePlayPause);
+
+    // Touch/swipe support for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    track.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    track.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+        const diff = touchStartX - touchEndX;
+
+        if (Math.abs(diff) > CONFIG.swipeThreshold) {
+            if (diff > 0) {
+                nextSlide(); // Swipe left
+            } else {
+                prevSlide(); // Swipe right
+            }
+        }
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') prevSlide();
+        if (e.key === 'ArrowRight') nextSlide();
+        if (e.key === ' ' && e.target === document.body) {
+            e.preventDefault();
+            togglePlayPause();
+        }
+    });
+
+    // Initialize carousel when DOM is ready
+    function initCarousel() {
+        // Check if CAROUSEL_DATA is available
+        if (typeof CAROUSEL_DATA === 'undefined') {
+            console.error('CAROUSEL_DATA not found. Please ensure carousel.js exists at:', CONFIG.dataSourceUrl);
+            console.log('Expected format:');
+            console.log(`const CAROUSEL_DATA = {
+    slides: [
+        {
+            title: "Your Title",
+            description: "",
+            date: "Month Day, Year",
+            url: "https://...",
+            image: "/path/to/image.jpg",
+            alt: "Descriptive alt text for image"
+        }
+    ]
+};`);
+
+            // Display error message in carousel
+            track.innerHTML = '<div style="color: white; text-align: center; padding: 60px;">Carousel data not found. Please check with dhparker@vt.edu for details.</div>';
+            return;
+        }
+
+        buildCarousel();
+        // Start auto-advance
+        startAutoAdvance();
+    }
+
+    // Wait for carousel.js to load
+    window.addEventListener('load', () => {
+        // Small delay to ensure external script is processed
+        setTimeout(initCarousel, 100);
+    });
+</script>
+
+<!-- Load carousel data - MUST be placed after the main script -->
+<script src="https://hci.icat.vt.edu/content/dam/hci_icat_vt_edu/carousel.js"></script>
