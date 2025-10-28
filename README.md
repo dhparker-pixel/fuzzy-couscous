@@ -1,2 +1,2 @@
 # fuzzy-couscous
-A carousel for CHCI@VT / Fall 2025
+An image carousel for CHCI@VT / Fall 2025
